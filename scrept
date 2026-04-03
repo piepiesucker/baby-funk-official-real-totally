@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lizard Clicker</title>
+
+  <style>
+    :root {
+      --bg-gradient-1: linear-gradient(135deg, #1e3c72, #2a5298);
+      --ui-bg: #101318;
+      --ui-panel: #181c24;
+      --ui-accent: #5ad1ff;
+      --ui-accent-soft: rgba(90, 209, 255, 0.2);
+      --text-main: #f5f7ff;
+      --text-muted: #9aa0b5;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.35);
+      --transition-fast: 0.18s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #20263a, #05060a);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1200px;
+      height: 680px;
+      background: var(--ui-bg);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      padding: 18px;
+      gap: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      position: relative;
+    }
+
+    .play-area-wrapper {
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top left, #252b3d, #11131b);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .play-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      white-space: nowrap;
+    }
+
+    .play-gradient-frame {
+      position: relative;
+      flex: 1;
+      margin: 10px 26px;
+      border-radius: 26px;
+      background: var(--bg-gradient-1);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+
+    .lizard-clicker {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lizard-img-wrapper {
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      transition: transform var(--transition-fast), background 0.25s ease-out;
+    }
+
+    .lizard-img-wrapper:active {
+      transform: scale(0.95);
+    }
+
+    .lizard-img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .sidebar {
+      background: var(--ui-panel);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .tab-btn.active {
+      background: var(--ui-accent-soft);
+      color: var(--ui-accent);
+    }
+
+    .sidebar-content {
+      flex: 1;
+      background: radial-gradient(circle at top, #1b202c, #10131a);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 10px 11px;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transition: background 0.18s, transform 0.18s, opacity 0.18s;
+    }
+
+    .card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      transform: translateY(-1px);
+    }
+
+    .card-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .card-pill {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      white-space: nowrap;
+    }
+
+    .gradient-preview {
+      width: 46px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .scroll-list {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    /* Username overlay */
+    .username-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(0,0,0,0.85), rgba(0,0,0,0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .username-card {
+      width: 360px;
+      padding: 20px 22px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #181c24, #10131a);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .username-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .username-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .username-input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.4);
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .username-input:focus {
+      border-color: var(--ui-accent);
+    }
+
+    .username-btn {
+      margin-top: 4px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: none;
+      background: var(--ui-accent-soft);
+      color: var(--ui-accent);
+      font-size: 14px;
+      cursor: pointer;
+      align-self: flex-end;
+    }
+
+    .username-note {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+    <!-- Username overlay -->
+    <div class="username-overlay" id="usernameOverlay" style="display:none;">
+      <div class="username-card">
+        <div class="username-title">Choose your lizard name</div>
+        <div class="username-sub">This will be saved and used for your progress.</div>
+        <input id="usernameInput" class="username-input" maxlength="20" placeholder="Enter a username..." />
+        <button id="usernameSubmit" class="username-btn">Start</button>
+        <div class="username-note">You’ll only see this once on this device.</div>
+      </div>
+    </div>
+
+    <!-- LEFT -->
+    <div class="play-area-wrapper">
+      <div class="play-header">
+        <div class="pill">User: <span id="usernameLabel">...</span></div>
+        <div class="pill">Clicks: <span id="clickCount">0</span></div>
+        <div class="pill">CPS: <span id="cps">0</span></div>
+      </div>
+
+      <div class="play-gradient-frame" id="playGradientFrame">
+        <div class="lizard-clicker">
+          <div class="lizard-img-wrapper" id="lizardClickArea">
+            <img src="https://i.imgur.com/UVsiIZM.jpeg" class="lizard-img" />
+          </div>
+          <div id="clickCountLabel">0 clicks</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="sidebar">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="backgrounds">Backgrounds</button>
+        <button class="tab-btn" data-tab="skins">Skins</button>
+        <button class="tab-btn" data-tab="upgrades">Upgrades</button>
+        <button class="tab-btn" data-tab="twitch">Twitch</button>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- BACKGROUNDS -->
+        <div class="tab-panel" id="tab-backgrounds">
+          <div class="section-title">Background gradients</div>
+          <div id="bgList" class="scroll-list"></div>
+        </div>
+
+        <!-- SKINS -->
+        <div class="tab-panel" id="tab-skins" style="display:none;">
+          <div class="section-title">Lizard skins</div>
+          <div id="skinList" class="scroll-list"></div>
+        </div>
+
+        <!-- UPGRADES -->
+        <div class="tab-panel" id="tab-upgrades" style="display:none;">
+          <div class="section-title">Passive & tap upgrades</div>
+          <div class="scroll-list">
+            <!-- CPS upgrades -->
+            <div class="card" data-upgrade="auto1" data-cost="50" data-type="cps" data-amount="0.2">
+              <div class="card-main">
+                <div class="card-title">Lazy Tail Wag</div>
+                <div class="card-sub">+0.2 clicks per second.</div>
+              </div>
+              <div class="card-pill">Base: 50</div>
+            </div>
+            <div class="card" data-upgrade="auto2" data-cost="200" data-type="cps" data-amount="1">
+              <div class="card-main">
+                <div class="card-title">Zen Sunbathing</div>
+                <div class="card-sub">+1 click per second.</div>
+              </div>
+              <div class="card-pill">Base: 200</div>
+            </div>
+
+            <!-- Tap upgrades -->
+            <div class="card" data-upgrade="tap1" data-cost="150" data-type="click" data-amount="1">
+              <div class="card-main">
+                <div class="card-title">Finger Stretch</div>
+                <div class="card-sub">+1 click per tap.</div>
+              </div>
+              <div class="card-pill">Base: 150</div>
+            </div>
+            <div class="card" data-upgrade="tap2" data-cost="600" data-type="click" data-amount="3">
+              <div class="card-main">
+                <div class="card-title">Double Tap</div>
+                <div class="card-sub">+3 clicks per tap.</div>
+              </div>
+              <div class="card-pill">Base: 600</div>
+            </div>
+            <div class="card" data-upgrade="tap3" data-cost="3000" data-type="click" data-amount="10">
+              <div class="card-main">
+                <div class="card-title">Lizard Slap</div>
+                <div class="card-sub">+10 clicks per tap.</div>
+              </div>
+              <div class="card-pill">Base: 3,000</div>
+            </div>
+            <div class="card" data-upgrade="tap4" data-cost="9000" data-type="click" data-amount="25">
+              <div class="card-main">
+                <div class="card-title">Tail Boost</div>
+                <div class="card-sub">+25 clicks per tap.</div>
+              </div>
+              <div class="card-pill">Base: 9,000</div>
+            </div>
+            <div class="card" data-upgrade="tap5" data-cost="25000" data-type="click" data-amount="100">
+              <div class="card-main">
+                <div class="card-title">Hyper Claw</div>
+                <div class="card-sub">+100 clicks per tap.</div>
+              </div>
+              <div class="card-pill">Base: 25,000</div>
+            </div>
+
+            <div class="card-sub" style="margin-top:8px;font-size:11px;color:var(--text-muted);">
+              Upgrade cost increases each time you buy it.
+            </div>
+          </div>
+        </div>
+
+        <!-- TWITCH SHOP -->
+        <div class="tab-panel" id="tab-twitch" style="display:none;">
+          <div class="section-title">Twitch Effects Shop</div>
+          <div class="scroll-list">
+            <div class="card" data-twitch="rain" data-cost="500">
+              <div class="card-main">
+                <div class="card-title">Lizard Rain</div>
+                <div class="card-sub">Rains lizards from the sky.</div>
+              </div>
+              <div class="card-pill">Cost: 500</div>
+            </div>
+
+            <div class="card" data-twitch="swarm" data-cost="2500">
+              <div class="card-main">
+                <div class="card-title">Lizard Swarm</div>
+                <div class="card-sub">Chaotic flying swarm.</div>
+              </div>
+              <div class="card-pill">Cost: 2,500</div>
+            </div>
+
+            <div class="card" data-twitch="rock" data-cost="8000">
+              <div class="card-main">
+                <div class="card-title">Rock Drop</div>
+                <div class="card-sub">Rock sits for 5 seconds.</div>
+              </div>
+              <div class="card-pill">Cost: 8,000</div>
+            </div>
+
+            <div class="card" data-twitch="explosion" data-cost="15000">
+              <div class="card-main">
+                <div class="card-title">Lizard Explosion</div>
+                <div class="card-sub">Burst from the center.</div>
+              </div>
+              <div class="card-pill">Cost: 15,000</div>
+            </div>
+
+            <div class="card" data-twitch="bounce" data-cost="30000">
+              <div class="card-main">
+                <div class="card-title">Lizard Bounce</div>
+                <div class="card-sub">Bouncy sideflip motion.</div>
+              </div>
+              <div class="card-pill">Cost: 30,000</div>
+            </div>
+
+            <div class="card" data-twitch="christmas" data-cost="50000">
+              <div class="card-main">
+                <div class="card-title">Christmas Lizard Bounce</div>
+                <div class="card-sub">Only works on Christmas.</div>
+              </div>
+              <div class="card-pill">Cost: 50,000</div>
+            </div>
+
+            <div class="card" data-twitch="tumbleweed" data-cost="90000">
+              <div class="card-main">
+                <div class="card-title">Lizard Tumbleweed</div>
+                <div class="card-sub">Rolls across the screen.</div>
+              </div>
+              <div class="card-pill">Cost: 90,000</div>
+            </div>
+
+            <div class="card-sub" style="margin-top:8px;font-size:11px;color:var(--text-muted);">
+              Click to buy if you don't own it. Click again to trigger if you do.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      get,
+      update,
+      onValue,
+      push
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA68QdV5Bb6Sx4M2yoA89aE3-ABFtrTk_o",
+      authDomain: "lezerd-8741d.firebaseapp.com",
+      projectId: "lezerd-8741d",
+      storageBucket: "lezerd-8741d.firebasestorage.app",
+      messagingSenderId: "926216208102",
+      appId: "1:926216208102:web:3b97232d923f43889a8527",
+      measurementId: "G-E0ZWGG1BK9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Username + player
+    let username = localStorage.getItem("lezerdUsername") || "";
+    let playerId = localStorage.getItem("lezerdPlayerId");
+
+    if (!playerId) {
+      playerId = "player_" + Math.random().toString(36).slice(2);
+      localStorage.setItem("lezerdPlayerId", playerId);
+    }
+
+    const playerRef = ref(db, "players/" + playerId);
+
+    const usernameOverlay = document.getElementById("usernameOverlay");
+    const usernameInput = document.getElementById("usernameInput");
+    const usernameSubmit = document.getElementById("usernameSubmit");
+    const usernameLabel = document.getElementById("usernameLabel");
+
+    function showUsernameOverlay() {
+      usernameOverlay.style.display = "flex";
+    }
+
+    function hideUsernameOverlay() {
+      usernameOverlay.style.display = "none";
+    }
+
+    function setUsername(name) {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      username = trimmed;
+      localStorage.setItem("lezerdUsername", username);
+      usernameLabel.textContent = username;
+      update(playerRef, { username });
+      hideUsernameOverlay();
+    }
+
+    if (!username) {
+      showUsernameOverlay();
+    } else {
+      usernameLabel.textContent = username;
+    }
+
+    usernameSubmit.addEventListener("click", () => {
+      setUsername(usernameInput.value);
+    });
+
+    usernameInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") setUsername(usernameInput.value);
+    });
+
+    // Game state
+    let clicks = 0;
+    let cps = 0;
+    let clicksPerClick = 1;
+    let currentBackground = 0;
+    let currentSkin = 0;
+    let currentUpgrades = {};
+    let twitchUpgrades = {};
+
+    const clickCountEl = document.getElementById("clickCount");
+    const clickCountLabel = document.getElementById("clickCountLabel");
+    const cpsEl = document.getElementById("cps");
+    const lizardClickArea = document.getElementById("lizardClickArea");
+    const playGradientFrame = document.getElementById("playGradientFrame");
+
+    // Backgrounds & skins data (100 each)
+    const backgrounds = [];
+    const skins = [];
+
+    function addBg(name, gradient) {
+      backgrounds.push({ name, gradient });
+    }
+
+    function addSkin(name, gradient) {
+      skins.push({ name, gradient });
+    }
+
+    // 100 backgrounds
+    const bgPresets = [
+      ["Midnight Tide", "linear-gradient(135deg,#1e3c72,#2a5298)"],
+      ["Sunset Cotton", "linear-gradient(135deg,#ff9a9e,#fad0c4)"],
+      ["Mint Breeze", "linear-gradient(135deg,#a1ffce,#faffd1)"],
+      ["Nebula Drift", "linear-gradient(135deg,#4e54c8,#8f94fb)"],
+      ["Toxic Slime", "linear-gradient(135deg,#00c853,#b2ff59)"],
+      ["Deep Ocean Pulse", "linear-gradient(135deg,#000428,#004e92)"],
+      ["Dreamwave Horizon", "linear-gradient(135deg,#ff9a9e,#fecfef)"],
+      ["Lava Flow", "linear-gradient(135deg,#ff512f,#f09819)"],
+      ["Cyber Grid", "linear-gradient(135deg,#0f2027,#203a43,#2c5364)"],
+      ["Aurora Sky", "linear-gradient(135deg,#00c6ff,#0072ff)"],
+      ["Galaxy Mist", "linear-gradient(135deg,#654ea3,#eaafc8)"],
+      ["Forest Veil", "linear-gradient(135deg,#5a3f37,#2c7744)"],
+      ["Desert Mirage", "linear-gradient(135deg,#f6d365,#fda085)"],
+      ["Storm Surge", "linear-gradient(135deg,#373b44,#4286f4)"],
+      ["Cotton Candy Night", "linear-gradient(135deg,#fcbad3,#a6e3e9)"],
+      ["Electric Bloom", "linear-gradient(135deg,#ff00cc,#333399)"],
+      ["Tidal Glow", "linear-gradient(135deg,#2193b0,#6dd5ed)"],
+      ["Moss Stone", "linear-gradient(135deg,#134e5e,#71b280)"],
+      ["Crimson Dusk", "linear-gradient(135deg,#200122,#6f0000)"],
+      ["Frosted Glass", "linear-gradient(135deg,#cfd9df,#e2ebf0)"]
+    ];
+
+    for (let i = 0; i < 100; i++) {
+      const preset = bgPresets[i % bgPresets.length];
+      addBg(preset[0] + " #" + (Math.floor(i / bgPresets.length) + 1), preset[1]);
+    }
+
+    // 100 skins
+    const skinPresets = [
+      ["Ocean Fade", "linear-gradient(135deg,#00c6ff,#0072ff)"],
+      ["Ember Glow", "linear-gradient(135deg,#ff512f,#dd2476)"],
+      ["Aurora Drift", "linear-gradient(135deg,#00ff87,#60efff)"],
+      ["Neon Pulse", "linear-gradient(135deg,#f72585,#7209b7)"],
+      ["Mint Cloud", "linear-gradient(135deg,#a1ffce,#faffd1)"],
+      ["Toxic Bloom", "linear-gradient(135deg,#a8ff78,#78ffd6)"],
+      ["Galaxy Pulse", "linear-gradient(135deg,#41295a,#2f0743)"],
+      ["Inferno Fade", "linear-gradient(135deg,#f12711,#f5af19)"],
+      ["Cyber Neon", "linear-gradient(135deg,#00f260,#0575e6)"],
+      ["Rose Storm", "linear-gradient(135deg,#e96443,#904e95)"],
+      ["Void Shift", "linear-gradient(135deg,#000000,#434343)"],
+      ["Solar Flare", "linear-gradient(135deg,#f7971e,#ffd200)"],
+      ["Glacier Edge", "linear-gradient(135deg,#83a4d4,#b6fbff)"],
+      ["Jungle Mist", "linear-gradient(135deg,#11998e,#38ef7d)"],
+      ["Night Circuit", "linear-gradient(135deg,#141e30,#243b55)"],
+      ["Candy Shell", "linear-gradient(135deg,#ffecd2,#fcb69f)"],
+      ["Tideglass", "linear-gradient(135deg,#74ebd5,#acb6e5)"],
+      ["Plasma Vein", "linear-gradient(135deg,#f953c6,#b91d73)"],
+      ["Magma Core", "linear-gradient(135deg,#ff512f,#f09819)"],
+      ["Aurora Shell", "linear-gradient(135deg,#00c9ff,#92fe9d)"]
+    ];
+
+    for (let i = 0; i < 100; i++) {
+      const preset = skinPresets[i % skinPresets.length];
+      addSkin(preset[0] + " #" + (Math.floor(i / skinPresets.length) + 1), preset[1]);
+    }
+
+    const bgList = document.getElementById("bgList");
+    const skinList = document.getElementById("skinList");
+
+    function renderBackgrounds() {
+      bgList.innerHTML = "";
+      backgrounds.forEach((bg, idx) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.bgIndex = idx;
+
+        card.innerHTML = `
+          <div class="card-main">
+            <div class="card-title">${bg.name}</div>
+            <div class="card-sub">Gradient background</div>
+          </div>
+          <div class="gradient-preview" style="background:${bg.gradient};"></div>
+        `;
+
+        card.addEventListener("click", () => {
+          currentBackground = idx;
+          applyBackgroundIndex(currentBackground);
+          save();
+        });
+
+        bgList.appendChild(card);
+      });
+    }
+
+    function renderSkins() {
+      skinList.innerHTML = "";
+      skins.forEach((skin, idx) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.skinIndex = idx;
+
+        card.innerHTML = `
+          <div class="card-main">
+            <div class="card-title">${skin.name}</div>
+            <div class="card-sub">Lizard skin gradient</div>
+          </div>
+          <div class="gradient-preview" style="background:${skin.gradient};"></div>
+        `;
+
+        card.addEventListener("click", () => {
+          currentSkin = idx;
+          applySkinIndex(currentSkin);
+          save();
+        });
+
+        skinList.appendChild(card);
+      });
+    }
+
+    function applyBackgroundIndex(idx) {
+      const bg = backgrounds[idx] || backgrounds[0];
+      playGradientFrame.style.background = bg.gradient;
+    }
+
+    function applySkinIndex(idx) {
+      const skin = skins[idx] || skins[0];
+      lizardClickArea.style.background = skin.gradient;
+    }
+
+    function updateLabels() {
+      clickCountEl.textContent = clicks.toFixed(0);
+      clickCountLabel.textContent = clicks.toFixed(0) + " clicks";
+      cpsEl.textContent = cps.toFixed(1);
+    }
+
+    function applyUpgrades(data) {
+      currentUpgrades = data || {};
+    }
+
+    function applyTwitchUpgrades(data) {
+      twitchUpgrades = data || {};
+      document.querySelectorAll("[data-twitch]").forEach(card => {
+        const id = card.getAttribute("data-twitch");
+        if (twitchUpgrades[id]) card.style.opacity = "0.5";
+        else card.style.opacity = "1";
+      });
+    }
+
+    function save() {
+      update(playerRef, {
+        username: username || null,
+        clicks,
+        cps,
+        clicksPerClick,
+        backgroundIndex: currentBackground,
+        skinIndex: currentSkin,
+        upgrades: currentUpgrades,
+        twitchUpgrades
+      });
+    }
+
+    get(playerRef).then(snap => {
+      if (!snap.exists()) {
+        set(playerRef, {
+          username: username || null,
+          clicks: 0,
+          cps: 0,
+          clicksPerClick: 1,
+          backgroundIndex: 0,
+          skinIndex: 0,
+          upgrades: {},
+          twitchUpgrades: {}
+        });
+      }
+    });
+
+    onValue(playerRef, snap => {
+      const d = snap.val();
+      if (!d) return;
+      if (!username && d.username) {
+        username = d.username;
+        localStorage.setItem("lezerdUsername", username);
+        usernameLabel.textContent = username;
+        hideUsernameOverlay();
+      }
+      clicks = d.clicks ?? 0;
+      cps = d.cps ?? 0;
+      clicksPerClick = d.clicksPerClick ?? 1;
+      currentBackground = d.backgroundIndex ?? 0;
+      currentSkin = d.skinIndex ?? 0;
+      applyBackgroundIndex(currentBackground);
+      applySkinIndex(currentSkin);
+      applyUpgrades(d.upgrades ?? {});
+      applyTwitchUpgrades(d.twitchUpgrades ?? {});
+      updateLabels();
+    });
+
+    // Clicker
+    lizardClickArea.addEventListener("click", () => {
+      clicks += clicksPerClick;
+      updateLabels();
+      save();
+    });
+
+    setInterval(() => {
+      if (cps > 0) {
+        clicks += cps;
+        updateLabels();
+        save();
+      }
+    }, 1000);
+
+    // Upgrades (repeatable, scaling cost)
+    document.querySelectorAll("[data-upgrade]").forEach(card => {
+      card.addEventListener("click", () => {
+        const id = card.getAttribute("data-upgrade");
+        const baseCost = Number(card.getAttribute("data-cost"));
+        const type = card.getAttribute("data-type");
+        const amount = Number(card.getAttribute("data-amount"));
+
+        const timesBought = currentUpgrades[id] || 0;
+        const cost = Math.floor(baseCost * Math.pow(1.25, timesBought));
+
+        if (clicks < cost) {
+          alert("Not enough clicks. Need " + cost);
+          return;
+        }
+
+        clicks -= cost;
+
+        if (type === "cps") cps += amount;
+        if (type === "click") clicksPerClick += amount;
+
+        currentUpgrades[id] = timesBought + 1;
+
+        updateLabels();
+        save();
+      });
+    });
+
+    // Twitch shop: click = buy if not owned, trigger if owned
+    document.querySelectorAll("[data-twitch]").forEach(card => {
+      card.addEventListener("click", () => {
+        const id = card.getAttribute("data-twitch");
+        const cost = Number(card.getAttribute("data-cost"));
+
+        const effectMap = {
+          rain: "lizardRain",
+          swarm: "lizardSwarm",
+          rock: "rock",
+          explosion: "lizardExplosion",
+          bounce: "lizardBounce",
+          christmas: "christmasLizardBounce",
+          tumbleweed: "lizardTumbleweed"
+        };
+
+        const effect = effectMap[id];
+
+        // If not owned, try to buy
+        if (!twitchUpgrades[id]) {
+          if (clicks < cost) {
+            alert("Not enough clicks.");
+            return;
+          }
+          clicks -= cost;
+          twitchUpgrades[id] = true;
+          card.style.opacity = "0.5";
+          updateLabels();
+          save();
+          return;
+        }
+
+        // Already owned → trigger effect (push new event)
+        const eventRef = ref(db, "twitchEvents/events");
+        push(eventRef, {
+          effect,
+          timestamp: Date.now(),
+          username: username || "Unknown",
+          skinGradient: skins[currentSkin]?.gradient || "linear-gradient(135deg,#fff,#ccc)"
+        });
+      });
+    });
+
+    // Tabs
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = btn.dataset.tab;
+        document.querySelectorAll(".tab-panel").forEach(panel => {
+          panel.style.display = panel.id === "tab-" + tab ? "block" : "none";
+        });
+      });
+    });
+
+    // Initial render of lists
+    renderBackgrounds();
+    renderSkins();
+  </script>
+</body>
+</html>
